@@ -79,6 +79,31 @@
         .logout-form {
             flex: 0 0 auto;
         }
+        /* 更新ボタンのスタイル */
+        .btn-refresh {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: transparent;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            color: #555;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: white;
+            z-index: 1000; /* 他の要素より手前に表示 */
+        }
+        .btn-refresh:active {
+            background-color: #f0f0f0;
+            transform: translateY(2px); /* 押したときに少し沈む */
+        }
+
         .sp-br {
             display: none;
         }
@@ -89,11 +114,15 @@
             h1 {
                 font-size: 1.5rem;
                 line-height: 1.4;
+                margin-top: 10px; /* 更新ボタンとかぶらないように少し下げる */
             }
         }
     </style>
 </head>
 <body>
+
+<button onclick="window.location.reload();" class="btn-refresh" title="更新">↻</button>
+
 <h1>就活状況管理<br class="sp-br">Job Manager</h1>
 
 <div class="header-actions">
