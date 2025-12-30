@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <meta name="theme-color" content="#007bff">
     <style>
         body { font-family: sans-serif; padding: 40px; text-align: center; background-color: #f9f9f9; }
         .login-container { display: inline-block; text-align: left; background: white; padding: 30px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -17,9 +21,9 @@
 </head>
 <body>
 
+<div class="login-container">
     <h1>Job Manager<br>ログイン</h1>
 
-<div class="login-container">
     <div th:if="${param.error}" class="error">
         ユーザー名またはパスワードが違います
     </div>
@@ -36,12 +40,12 @@
 
         <button type="submit">ログイン</button>
     </form>
-</div>
 
     <div class="signup-link">
         アカウントをお持ちでない方は<br>
         <a th:href="@{/signup}">新規会員登録はこちら</a>
     </div>
+</div>
 
 </body>
 </html>
