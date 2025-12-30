@@ -21,31 +21,31 @@
 </head>
 <body>
 
-<div class="login-container">
     <h1>Job Manager<br>ログイン</h1>
 
-    <div th:if="${param.error}" class="error">
-        ユーザー名またはパスワードが違います
+    <div class="login-container">
+        <div th:if="${param.error}" class="error">
+            ユーザー名またはパスワードが違います
+        </div>
+        <div th:if="${param.logout}" style="color: green; margin-bottom: 15px; text-align: center;">
+            ログアウトしました
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <label>ユーザー名</label>
+            <input type="text" name="username" required autofocus placeholder="username">
+
+            <label>パスワード</label>
+            <input type="password" name="password" required placeholder="password">
+
+            <button type="submit">ログイン</button>
+        </form>
     </div>
-    <div th:if="${param.logout}" style="color: green; margin-bottom: 15px; text-align: center;">
-        ログアウトしました
-    </div>
-
-    <form th:action="@{/login}" method="post">
-        <label>ユーザー名</label>
-        <input type="text" name="username" required autofocus placeholder="username">
-
-        <label>パスワード</label>
-        <input type="password" name="password" required placeholder="password">
-
-        <button type="submit">ログイン</button>
-    </form>
 
     <div class="signup-link">
         アカウントをお持ちでない方は<br>
         <a th:href="@{/signup}">新規会員登録はこちら</a>
     </div>
-</div>
 
 </body>
 </html>
