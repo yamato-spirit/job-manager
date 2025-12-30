@@ -15,19 +15,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. URLごとのアクセス許可設定
                 .authorizeHttpRequests(auth -> auth
-                        // loginページ自体も誰でもアクセスできるようにする
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/signup", "/manifest.json", "/login").permitAll()
-                        .anyRequest().authenticated() // それ以外はログイン必須
+                        // manifest.json や signup, login ページへのアクセスを明示的に許可
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/signup", "/login", "/manifest.json").permitAll()
+                        .anyRequest().authenticated()
                 )
-                // 2. ログインフォームの設定
                 .formLogin(login -> login
-                        .loginPage("/login") // 自作のログイン画面を使う設定
-                        .permitAll() // ログイン画面には誰でもアクセスOK
-                        .defaultSuccessUrl("/", true) // ログイン成功後はトップページへ
+                        .loginPage("/login")
+                        .permitAll()
+                        .defaultSuccessUrl("/", true)
                 )
-                // 3. ログアウトの設定
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()

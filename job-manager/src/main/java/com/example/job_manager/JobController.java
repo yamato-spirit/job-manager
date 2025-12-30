@@ -19,10 +19,10 @@ public class JobController {
     @Autowired
     private SiteUserRepository userRepository;
 
-    // 共通処理: ログイン中のユーザー情報をDBから取得する便利メソッド
+    // 共通処理: ログイン中のユーザー情報をDBから取得
     private SiteUser getCurrentUser(UserDetails userDetails) {
         if (userDetails == null) {
-            return null; // 未ログイン（ありえないが念のため）
+            return null;
         }
         return userRepository.findByUsername(userDetails.getUsername());
     }
@@ -32,11 +32,9 @@ public class JobController {
                         @RequestParam(name = "sort", defaultValue = "manual") String sort,
                         @AuthenticationPrincipal UserDetails userDetails) {
 
-        // 1. 今ログインしている人を取得
         SiteUser user = getCurrentUser(userDetails);
-
         List<JobApplication> jobList;
-        // 2. 「その人のデータだけ」を検索して取得する (findAll -> findByUser に変更)
+
         if ("asc".equals(sort)) {
             jobList = repository.findByUser(user, Sort.by(Sort.Direction.ASC, "deadline"));
         } else if ("desc".equals(sort)) {
@@ -58,7 +56,6 @@ public class JobController {
         JobApplication job = repository.findById(id).orElse(null);
         SiteUser user = getCurrentUser(userDetails);
 
-        // ガード処理: もし他人のデータを見ようとしたらトップへ飛ばす
         if (job == null || !job.user.id.equals(user.id)) {
             return "redirect:/";
         }
@@ -76,7 +73,6 @@ public class JobController {
         JobApplication job = repository.findById(id).orElse(null);
         SiteUser user = getCurrentUser(userDetails);
 
-        // ガード処理
         if (job == null || !job.user.id.equals(user.id)) {
             return "redirect:/";
         }
@@ -99,18 +95,15 @@ public class JobController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         SiteUser user = getCurrentUser(userDetails);
-
-        // 既存データを取得して持ち主チェック
         JobApplication original = repository.findById(id).orElse(null);
+
         if (original == null || !original.user.id.equals(user.id)) {
-            return "redirect:/"; // 他人のデータは更新させない
+            return "redirect:/";
         }
 
         JobApplication job = new JobApplication(companyName, status, deadline, motivation, selfPromotion, memo);
         job.id = id;
         job.sortOrder = original.sortOrder;
-
-        // 持ち主情報をセットし直す
         job.user = user;
 
         repository.save(job);
@@ -125,7 +118,6 @@ public class JobController {
         JobApplication job = repository.findById(id).orElse(null);
         SiteUser user = getCurrentUser(userDetails);
 
-        // ガード処理: 自分のデータなら削除実行
         if (job != null && job.user.id.equals(user.id)) {
             repository.deleteById(id);
         }
@@ -151,10 +143,7 @@ public class JobController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         SiteUser user = getCurrentUser(userDetails);
-
         JobApplication newJob = new JobApplication(companyName, status, deadline, motivation, selfPromotion, memo);
-
-        // 新しいデータの持ち主を「今のユーザー」に設定する
         newJob.user = user;
 
         repository.save(newJob);
@@ -165,12 +154,9 @@ public class JobController {
     @ResponseBody
     public void reorder(@RequestBody List<String> idList, @AuthenticationPrincipal UserDetails userDetails) {
         SiteUser user = getCurrentUser(userDetails);
-
         for (int i = 0; i < idList.size(); i++) {
             String id = idList.get(i);
             JobApplication job = repository.findById(id).orElse(null);
-
-            // 自分のデータの場合のみ並び順を更新する（他人のデータを勝手に触らせない）
             if (job != null && job.user.id.equals(user.id)) {
                 job.sortOrder = i;
                 repository.save(job);
@@ -178,9 +164,12 @@ public class JobController {
         }
     }
 
+    // Supabaseへのアクセスを追加
     @GetMapping("/ping")
     @ResponseBody
     public String ping() {
+        // データベースに軽いクエリ(件数カウント)を投げることで、Supabaseへの接続を維持する
+        repository.count();
         return "pong";
     }
 }
