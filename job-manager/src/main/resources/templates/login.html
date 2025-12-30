@@ -9,43 +9,109 @@
     <link rel="apple-touch-icon" href="/images/icon-192.png">
     <meta name="theme-color" content="#007bff">
     <style>
-        body { font-family: sans-serif; padding: 40px; text-align: center; background-color: #f9f9f9; }
-        .login-container { display: inline-block; text-align: left; background: white; padding: 30px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input { display: block; margin-bottom: 15px; padding: 10px; width: 250px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px; }
-        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #0056b3; }
-        .error { color: red; margin-bottom: 15px; font-size: 0.9em; }
-        .signup-link { margin-top: 20px; display: block; font-size: 14px; text-align: center; }
-        h1 { margin-top: 0; color: #333; }
+        /* Flexboxを使って画面の中央に配置する */
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .login-container {
+            /* display: inline-block; は削除 */
+            text-align: left;
+            background: white;
+            padding: 30px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+            width: 100%;
+            max-width: 350px;
+            box-sizing: border-box; /* paddingを含めて幅を計算する */
+        }
+
+        input {
+            display: block;
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .signup-link {
+            margin-top: 20px;
+            display: block;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Job Manager<br>ログイン</h1>
+<h1>Job Manager<br>ログイン</h1>
 
-    <div class="login-container">
-        <div th:if="${param.error}" class="error">
-            ユーザー名またはパスワードが違います
-        </div>
-        <div th:if="${param.logout}" style="color: green; margin-bottom: 15px; text-align: center;">
-            ログアウトしました
-        </div>
-
-        <form th:action="@{/login}" method="post">
-            <label>ユーザー名</label>
-            <input type="text" name="username" required autofocus placeholder="username">
-
-            <label>パスワード</label>
-            <input type="password" name="password" required placeholder="password">
-
-            <button type="submit">ログイン</button>
-        </form>
+<div class="login-container">
+    <div th:if="${param.error}" class="error">
+        ユーザー名またはパスワードが違います
+    </div>
+    <div th:if="${param.logout}" style="color: green; margin-bottom: 15px; text-align: center;">
+        ログアウトしました
     </div>
 
-    <div class="signup-link">
-        アカウントをお持ちでない方は<br>
-        <a th:href="@{/signup}">新規会員登録はこちら</a>
-    </div>
+    <form th:action="@{/login}" method="post">
+        <label>ユーザー名</label>
+        <input type="text" name="username" required autofocus placeholder="username">
+
+        <label>パスワード</label>
+        <input type="password" name="password" required placeholder="password">
+
+        <button type="submit">ログイン</button>
+    </form>
+</div>
+
+<div class="signup-link">
+    アカウントをお持ちでない方は<br>
+    <a th:href="@{/signup}">新規会員登録はこちら</a>
+</div>
 
 </body>
 </html>
