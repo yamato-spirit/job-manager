@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新規登録</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>新規企業の追加</h1>
+<form th:action="@{/add(sort=${currentSort})}" method="post" onsubmit="return validateForm()">
+    <div>
+        <label>企業名</label><br>
+        <input type="text" name="companyName" placeholder="例：株式会社〇〇">
+    </div>
+    <div>
+        <label>選考状況</label><br>
+        <input type="text" name="status" placeholder="例：ES提出済み">
+    </div>
+    <div>
+        <label>次回日程・期限</label><br>
+        <input type="text" name="deadline" placeholder="例：2025/02/03" maxlength="10" oninput="formatDate(this)">
+    </div>
+    <div>
+        <label>志望動機</label><br>
+        <textarea name="motivation" rows="5" placeholder="例：御社の技術力に..."></textarea>
+    </div>
+    <div>
+        <label>自己PR</label><br>
+        <textarea name="selfPromotion" rows="5" placeholder="例：私の長所は..."></textarea>
+    </div>
+    <div>
+        <label>メモ</label><br>
+        <textarea name="memo" rows="5" placeholder="例：面接地は東京本社..."></textarea>
+    </div>
+    <br>
+    <button type="submit">追加する</button>
+</form>
+
+<a th:href="@{/(sort=${currentSort})}">キャンセルして戻る</a>
+
+<script>
+    function formatDate(input) {
+        let num = input.value.replace(/[^0-9]/g, '');
+        let res = '';
+        if (num.length > 4) res = num.substring(0, 4) + '/' + num.substring(4);
+        else res = num;
+        if (num.length > 6) res = num.substring(0, 4) + '/' + num.substring(4, 6) + '/' + num.substring(6);
+        input.value = res;
+    }
+    function checkDateValue(val) {
+        if (val === '') return null;
+        const regex = /^\d{4}\/\d{2}\/\d{2}$/;
+        if (!regex.test(val)) return "日付は「YYYY/MM/DD」の形式で入力してください\n※月や日が1桁の場合は先頭に0をつけてください";
+        const parts = val.split('/');
+        const year = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        const day = parseInt(parts[2]);
+        if (month < 1 || month > 12) return "月は01から12の間で入力してください";
+        const dt = new Date(year, month - 1, day);
+        if (dt.getFullYear() !== year || dt.getMonth() + 1 !== month || dt.getDate() !== day) return "存在しない日付です！";
+        return null;
+    }
+    function validateForm() {
+        // 1. 企業名のチェック
+        const companyNameInput = document.querySelector('input[name="companyName"]');
+        if (companyNameInput.value.trim() === "") {
+            alert("企業名を入力してください");
+            return false;
+        }
+
+        // 2. 日付のチェック
+        const dateInput = document.querySelector('input[name="deadline"]');
+        const errorMsg = checkDateValue(dateInput.value);
+        if (errorMsg) {
+            alert(errorMsg);
+            return false;
+        }
+        return true;
+    }
+</script>
+</body>
+</html>

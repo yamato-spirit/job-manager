@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Manager</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <meta name="theme-color" content="#007bff">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <style>
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: #f0f0f0;
+        }
+        .job-card {
+            background-color: white;
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .job-info {
+            flex-grow: 1;
+            min-width: 0;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            padding-right: 10px;
+        }
+        .handle {
+            cursor: grab;
+            font-size: 24px;
+            padding: 10px 10px 10px 20px;
+            color: #888;
+            user-select: none;
+        }
+        .handle:active {
+            cursor: grabbing;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            padding: 12px 0;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-add {
+            background-color: #007bff;
+            color: white;
+            flex: 1;
+            min-width: 120px;
+        }
+        .btn-sort {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+            flex: 1;
+            min-width: 100px;
+        }
+        .btn-logout {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
+        .logout-form {
+            flex: 0 0 auto;
+        }
+        .sp-br {
+            display: none;
+        }
+        @media (max-width: 600px) {
+            .sp-br {
+                display: inline;
+            }
+            h1 {
+                font-size: 1.5rem;
+                line-height: 1.4;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>就活状況管理<br class="sp-br">Job Manager</h1>
+
+<div class="header-actions">
+    <a th:href="@{/add(sort=${currentSort})}" class="btn btn-add">＋ 新規企業の追加</a>
+
+    <a th:href="@{/(sort='desc')}" th:if="${currentSort == 'asc'}" class="btn btn-sort">
+        期限：降順 ▼
+    </a>
+    <a th:href="@{/(sort='asc')}" th:unless="${currentSort == 'asc'}" class="btn btn-sort">
+        期限：昇順 ▲
+    </a>
+
+    <form th:action="@{/logout}" method="post" class="logout-form">
+        <button type="submit" class="btn btn-logout" style="padding: 12px 15px;">
+            ログアウト
+        </button>
+    </form>
+</div>
+<hr>
+
+<div id="job-list">
+    <div th:each="job : ${jobs}" th:data-id="${job.id}" class="job-card">
+        <div class="job-info">
+            <h2 style="margin: 0; font-size: 1.2rem;">
+                <a th:href="@{/detail/{id}(id=${job.id}, sort=${currentSort})}"
+                   style="text-decoration: none; color: #007bff; display: block;">
+                    <span th:text="${job.companyName}" style="display: block; color: #007bff;">
+                        企業名
+                    </span>
+                    <span th:text="'(' + ${job.status} + ')'" style="display: block; font-size: 0.85em; color:#666; font-weight: normal; margin-top: 2px;">
+                        (状況)
+                    </span>
+                </a>
+            </h2>
+            <p th:text="'次回日程・期限：' + ${job.deadline}" style="margin: 5px 0 0 0; color: #555;">日付</p>
+        </div>
+        <div class="handle">≡</div>
+    </div>
+</div>
+
+<script>
+    var el = document.getElementById('job-list');
+    var sortable = Sortable.create(el, {
+        handle: '.handle',
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onEnd: function(evt) {
+            var order = sortable.toArray();
+            fetch('/api/reorder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(order)
+            }).then(response => {
+                console.log('順番を保存しました');
+            }).catch(error => {
+                console.error('保存エラー：', error);
+            });
+        }
+    });
+</script>
+</body>
+</html>

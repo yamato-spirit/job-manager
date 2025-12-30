@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>詳細画面</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        h2 { margin-top: 0; color: #333; }
+        h3 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #555;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-edit {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        a {
+            text-decoration: none;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+<h1>企業詳細データ</h1>
+
+<div class="container">
+    <h2 th:text="${job.companyName}">企業名</h2>
+    <p th:text="'現在の状況：' + ${job.status}">現在の状況</p>
+    <p th:text="'次回日程・期限：' + ${job.deadline}">次回日程・期限</p>
+
+    <h3>志望動機</h3>
+    <p style="white-space: pre-wrap;" th:text="${job.motivation}">ここに志望動機</p>
+
+    <h3>自己PR</h3>
+    <p style="white-space: pre-wrap;" th:text="${job.selfPromotion}">ここに自己PR</p>
+
+    <h3>メモ</h3>
+    <p style="white-space: pre-wrap;" th:text="${job.memo}">ここにメモ</p>
+</div>
+
+<div class="action-buttons">
+    <a th:href="@{/edit/{id}(id=${job.id}, sort=${currentSort})}">
+        <button class="btn-edit">内容を編集する</button>
+    </a>
+
+    <form th:action="@{/delete(sort=${currentSort})}" method="post" onsubmit="return confirm('本当に削除しますか？');">
+        <input type="hidden" name="id" th:value="${job.id}">
+        <button type="submit" class="btn-delete">このデータを削除する</button>
+    </form>
+</div>
+
+<a th:href="@{/(sort=${currentSort})}" class="back-link">←一覧に戻る</a>
+
+</body>
+</html>
