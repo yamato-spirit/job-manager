@@ -36,10 +36,9 @@
             cursor: pointer;
             margin-top: 10px;
         }
-        /* 連打防止のためにボタンが無効化されたときのスタイルを追加 */
         button:disabled {
-            background-color: #cccccc; /* グレーにする */
-            cursor: not-allowed;       /* カーソルを禁止マークにする */
+            background-color: #cccccc;
+            cursor: not-allowed;
             opacity: 0.7;
         }
         label {
@@ -56,7 +55,7 @@
 </head>
 <body>
 <h1>新規企業の追加</h1>
-<form th:action="@{/add(sort=${currentSort})}" method="post" onsubmit="return validateForm()">
+<form th:action="@{/add}" method="post" onsubmit="return validateForm()">
     <div>
         <label>企業名</label><br>
         <input type="text" name="companyName" placeholder="例：株式会社〇〇">
@@ -85,7 +84,7 @@
     <button type="submit" id="submitBtn">追加する</button>
 </form>
 
-<a th:href="@{/(sort=${currentSort})}">キャンセルして戻る</a>
+<a href="/">キャンセルして戻る</a>
 
 <script>
     function formatDate(input) {
@@ -111,27 +110,24 @@
     }
 
     function validateForm() {
-        // 1. 企業名のチェック
         const companyNameInput = document.querySelector('input[name="companyName"]');
         if (companyNameInput.value.trim() === "") {
             alert("企業名を入力してください");
-            return false; // 送信しない
+            return false;
         }
 
-        // 2. 日付のチェック
         const dateInput = document.querySelector('input[name="deadline"]');
         const errorMsg = checkDateValue(dateInput.value);
         if (errorMsg) {
             alert(errorMsg);
-            return false; // 送信しない
+            return false;
         }
 
-        // チェックが全て通ったら、送信ボタンを無効化（クリック不可）にする
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.textContent = '追加中...'; // ボタンの文字を変えて処理中であることを伝える
+        submitBtn.textContent = '追加中...';
 
-        return true; // 送信する
+        return true;
     }
 </script>
 </body>

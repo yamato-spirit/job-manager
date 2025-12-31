@@ -27,12 +27,16 @@ public class JobController {
         return userRepository.findByUsername(userDetails.getUsername());
     }
 
+    // メイン画面表示
     @GetMapping("/")
-    public String index(Model model,
-                        @RequestParam(name = "sort", defaultValue = "manual") String sort,
-                        @AuthenticationPrincipal UserDetails userDetails) {
+    public String index(Model model, @AuthenticationPrincipal UserDetails userDetails) {
 
         SiteUser user = getCurrentUser(userDetails);
+
+        // URLパラメータではなく、DBに保存されたユーザー設定からソート順を取得
+        // 初回などでnullの場合は "manual" をデフォルトにする
+        String sort = (user.sortPreference != null) ? user.sortPreference : "manual";
+
         List<JobApplication> jobList;
 
         if ("asc".equals(sort)) {
@@ -40,17 +44,31 @@ public class JobController {
         } else if ("desc".equals(sort)) {
             jobList = repository.findByUser(user, Sort.by(Sort.Direction.DESC, "deadline"));
         } else {
+            // manualの場合は sortOrder で並び替える
             jobList = repository.findByUser(user, Sort.by(Sort.Direction.ASC, "sortOrder"));
         }
 
         model.addAttribute("jobs", jobList);
+        // ビュー側でボタンの表示切替に使うため、現在のソート順を渡す
         model.addAttribute("currentSort", sort);
         return "index";
     }
 
+    // 追加: ソート順ボタンが押されたときにDB設定を更新する処理
+    @GetMapping("/sort")
+    public String updateSort(@RequestParam("type") String type, @AuthenticationPrincipal UserDetails userDetails) {
+        SiteUser user = getCurrentUser(userDetails);
+        if (user != null) {
+            // ユーザーの並び順設定を更新して保存
+            user.sortPreference = type;
+            userRepository.save(user);
+        }
+        // トップページにリダイレクト（設定はDBにあるのでパラメータ不要）
+        return "redirect:/";
+    }
+
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable("id") String id, Model model,
-                         @RequestParam(name = "sort", defaultValue = "manual") String sort,
                          @AuthenticationPrincipal UserDetails userDetails) {
 
         JobApplication job = repository.findById(id).orElse(null);
@@ -61,13 +79,12 @@ public class JobController {
         }
 
         model.addAttribute("job", job);
-        model.addAttribute("currentSort", sort);
+        // sortパラメータの受け渡しは不要になったため削除
         return "detail";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") String id, Model model,
-                       @RequestParam(name = "sort", defaultValue = "manual") String sort,
                        @AuthenticationPrincipal UserDetails userDetails) {
 
         JobApplication job = repository.findById(id).orElse(null);
@@ -78,7 +95,6 @@ public class JobController {
         }
 
         model.addAttribute("job", job);
-        model.addAttribute("currentSort", sort);
         return "edit";
     }
 
@@ -91,7 +107,6 @@ public class JobController {
             @RequestParam("motivation") String motivation,
             @RequestParam("selfPromotion") String selfPromotion,
             @RequestParam("memo") String memo,
-            @RequestParam(name = "sort", defaultValue = "manual") String sort,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         SiteUser user = getCurrentUser(userDetails);
@@ -107,12 +122,12 @@ public class JobController {
         job.user = user;
 
         repository.save(job);
-        return "redirect:/detail/" + id + "?sort=" + sort;
+        // DBの設定が効くのでパラメータ無しでリダイレクト
+        return "redirect:/detail/" + id;
     }
 
     @PostMapping("/delete")
     public String delete(@RequestParam("id") String id,
-                         @RequestParam(name = "sort", defaultValue = "manual") String sort,
                          @AuthenticationPrincipal UserDetails userDetails) {
 
         JobApplication job = repository.findById(id).orElse(null);
@@ -122,12 +137,11 @@ public class JobController {
             repository.deleteById(id);
         }
 
-        return "redirect:/?sort=" + sort;
+        return "redirect:/";
     }
 
     @GetMapping("/add")
-    public String add(Model model, @RequestParam(name = "sort", defaultValue = "manual") String sort) {
-        model.addAttribute("currentSort", sort);
+    public String add() {
         return "add";
     }
 
@@ -139,21 +153,27 @@ public class JobController {
             @RequestParam("motivation") String motivation,
             @RequestParam("selfPromotion") String selfPromotion,
             @RequestParam("memo") String memo,
-            @RequestParam(name = "sort", defaultValue = "manual") String sort,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         SiteUser user = getCurrentUser(userDetails);
         JobApplication newJob = new JobApplication(companyName, status, deadline, motivation, selfPromotion, memo);
         newJob.user = user;
 
+        // 新規追加時の並び順を設定（現在の件数 = 末尾に追加）
+        long count = repository.countByUser(user);
+        newJob.sortOrder = (int) count;
+
         repository.save(newJob);
-        return "redirect:/?sort=" + sort;
+        return "redirect:/";
     }
 
+    // 並び替え（ドラッグ＆ドロップ）時の処理
     @PostMapping("/api/reorder")
     @ResponseBody
     public void reorder(@RequestBody List<String> idList, @AuthenticationPrincipal UserDetails userDetails) {
         SiteUser user = getCurrentUser(userDetails);
+
+        // 1. 各企業の並び順(sortOrder)を更新
         for (int i = 0; i < idList.size(); i++) {
             String id = idList.get(i);
             JobApplication job = repository.findById(id).orElse(null);
@@ -162,13 +182,17 @@ public class JobController {
                 repository.save(job);
             }
         }
+
+        // 2. 重要: 手動で動かしたので、ユーザーの設定を強制的に「manual」で上書き保存する
+        if (user != null && !"manual".equals(user.sortPreference)) {
+            user.sortPreference = "manual";
+            userRepository.save(user);
+        }
     }
 
-    // Supabaseへのアクセスを追加
     @GetMapping("/ping")
     @ResponseBody
     public String ping() {
-        // データベースに軽いクエリ(件数カウント)を投げることで、Supabaseへの接続を維持する
         repository.count();
         return "pong";
     }

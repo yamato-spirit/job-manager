@@ -89,17 +89,17 @@
 </div>
 
 <div class="action-buttons">
-    <a th:href="@{/edit/{id}(id=${job.id}, sort=${currentSort})}">
+    <a th:href="@{/edit/{id}(id=${job.id})}">
         <button class="btn-edit">内容を編集する</button>
     </a>
 
-    <form th:action="@{/delete(sort=${currentSort})}" method="post" onsubmit="return confirm('本当に削除しますか？');">
+    <form th:action="@{/delete}" method="post" onsubmit="return confirm('本当に削除しますか？');">
         <input type="hidden" name="id" th:value="${job.id}">
         <button type="submit" class="btn-delete">このデータを削除する</button>
     </form>
 </div>
 
-<a th:href="@{/(sort=${currentSort})}" class="back-link">←一覧に戻る</a>
+<a href="/" class="back-link">←一覧に戻る</a>
 
 </body>
 </html>

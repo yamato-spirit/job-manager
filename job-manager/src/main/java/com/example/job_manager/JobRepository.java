@@ -11,4 +11,7 @@ public interface JobRepository extends JpaRepository<JobApplication, String> {
 
     // 特定のユーザーのデータだけを探して、指定順に並べて返すメソッド
     List<JobApplication> findByUser(SiteUser user, Sort sort);
+
+    // ユーザーごとの登録件数をカウントするメソッド（新規追加時の順序決定に使用）
+    long countByUser(SiteUser user);
 }

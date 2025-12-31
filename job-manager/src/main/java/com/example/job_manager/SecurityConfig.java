@@ -15,6 +15,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // 【重要】JavaScriptからのPOST通信(並び替え保存など)を許可するためにCSRF対策を無効化
+                .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
                         // manifest.json や signup, login ページへのアクセスを明示的に許可
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/signup", "/login", "/manifest.json").permitAll()

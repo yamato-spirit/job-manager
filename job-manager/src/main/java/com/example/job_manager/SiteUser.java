@@ -17,8 +17,11 @@ public class SiteUser {
 
     public String email;
 
-    // cascade = CascadeType.ALL, orphanRemoval = true を追加
-    // これにより、ユーザーを削除すると、そのユーザーが書いたJobApplicationも全て自動削除されます
+    // ユーザーのソート順設定をDBに保存するフィールド
+    // 初期値は "manual" (自分だけの並び順)
+    public String sortPreference = "manual";
+
+    // ユーザーを削除すると、そのユーザーが書いたJobApplicationも全て自動削除されます
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<JobApplication> jobApplications;
 }
