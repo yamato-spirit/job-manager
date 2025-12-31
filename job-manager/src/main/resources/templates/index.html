@@ -19,11 +19,28 @@
         .handle { cursor: grab; font-size: 24px; padding: 10px 10px 10px 20px; color: #888; user-select: none; }
         .handle:active { cursor: grabbing; }
 
-        .header-actions { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .header-actions { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: stretch; }
         .btn { display: block; text-align: center; text-decoration: none; padding: 12px 0; border-radius: 5px; font-weight: bold; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-add { background-color: #007bff; color: white; flex: 1; min-width: 120px; }
         .btn-sort { background-color: #f8f9fa; color: #333; border: 1px solid #ddd; flex: 1; min-width: 100px; }
-        .btn-logout { background-color: #6c757d; color: white; border: none; width: 100%; cursor: pointer; }
+
+        /* ログアウトボタンのスタイル修正 (アイコン用) */
+        .btn-logout {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            /* 幅を固定して正方形に近くする */
+            width: 50px;
+            /* Flexboxでアイコンを中央配置 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%; /* 隣のボタンと高さを合わせる */
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
         .logout-form { flex: 0 0 auto; }
 
         /* タイトルのスタイル修正 */
@@ -45,7 +62,7 @@
         .btn-refresh:active { background-color: #f0f0f0; transform: translateY(2px); }
         .refresh-icon { width: 24px; height: 24px; fill: #555; stroke: none; display: block; }
 
-        /* 設定(歯車)ボタン */
+        /* 設定(退会)ボタン */
         .btn-settings {
             position: absolute; top: 20px; left: 20px;
             width: 44px; height: 44px; cursor: pointer;
@@ -53,9 +70,16 @@
             text-decoration: none; z-index: 1000;
             background-color: white; border: 1px solid #ccc; border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            overflow: hidden; /* 画像が丸枠からはみ出ないようにする */
         }
         .btn-settings:active { background-color: #f0f0f0; transform: translateY(2px); }
-        .settings-icon { width: 24px; height: 24px; fill: #555; }
+
+        /* 画像アイコン用のスタイル */
+        .settings-img {
+            width: 55px;  /* アイコンとして適切なサイズに調整 */
+            height: 55px;
+            object-fit: contain; /* アスペクト比を維持して表示 */
+        }
 
         .sp-br { display: none; }
         @media (max-width: 600px) {
@@ -79,11 +103,7 @@
 </button>
 
 <a th:href="@{/settings(sort=${currentSort})}" class="btn-settings" title="設定・退会">
-    <svg class="settings-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="fill: none;">
-        <path d="M15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10" fill="none"></path>
-        <polyline points="18 17 23 12 18 7" fill="none"></polyline>
-        <line x1="23" y1="12" x2="9" y2="12" fill="none"></line>
-    </svg>
+    <img src="/images/Delete_user.png" alt="設定・退会" class="settings-img">
 </a>
 
 <h1>就活状況管理<br class="sp-br">Job Manager</h1>
@@ -99,8 +119,12 @@
     </a>
 
     <form th:action="@{/logout}" method="post" class="logout-form">
-        <button type="submit" class="btn btn-logout" style="padding: 12px 15px;">
-            ログアウト
+        <button type="submit" class="btn-logout" title="ログアウト">
+            <svg class="settings-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="fill: none; width: 24px; height: 24px;">
+                <path d="M15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10" fill="none"></path>
+                <polyline points="18 17 23 12 18 7" fill="none"></polyline>
+                <line x1="23" y1="12" x2="9" y2="12" fill="none"></line>
+            </svg>
         </button>
     </form>
 </div>

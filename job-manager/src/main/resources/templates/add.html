@@ -36,6 +36,12 @@
             cursor: pointer;
             margin-top: 10px;
         }
+        /* 連打防止のためにボタンが無効化されたときのスタイルを追加 */
+        button:disabled {
+            background-color: #cccccc; /* グレーにする */
+            cursor: not-allowed;       /* カーソルを禁止マークにする */
+            opacity: 0.7;
+        }
         label {
             font-weight: bold;
         }
@@ -76,7 +82,7 @@
         <textarea name="memo" rows="5" placeholder="例：面接地は東京本社..."></textarea>
     </div>
     <br>
-    <button type="submit">追加する</button>
+    <button type="submit" id="submitBtn">追加する</button>
 </form>
 
 <a th:href="@{/(sort=${currentSort})}">キャンセルして戻る</a>
@@ -103,12 +109,13 @@
         if (dt.getFullYear() !== year || dt.getMonth() + 1 !== month || dt.getDate() !== day) return "存在しない日付です！";
         return null;
     }
+
     function validateForm() {
         // 1. 企業名のチェック
         const companyNameInput = document.querySelector('input[name="companyName"]');
         if (companyNameInput.value.trim() === "") {
             alert("企業名を入力してください");
-            return false;
+            return false; // 送信しない
         }
 
         // 2. 日付のチェック
@@ -116,9 +123,15 @@
         const errorMsg = checkDateValue(dateInput.value);
         if (errorMsg) {
             alert(errorMsg);
-            return false;
+            return false; // 送信しない
         }
-        return true;
+
+        // チェックが全て通ったら、送信ボタンを無効化（クリック不可）にする
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '追加中...'; // ボタンの文字を変えて処理中であることを伝える
+
+        return true; // 送信する
     }
 </script>
 </body>
