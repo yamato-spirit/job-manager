@@ -8,16 +8,17 @@ public class SiteUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id; // ユーザーID（自動で連番が振られます 1, 2, 3...）
+    public Long id;
 
-    @Column(unique = true) // 同じユーザー名は登録できないようにする
+    @Column(unique = true)
     public String username;
 
-    public String password; // 暗号化されたパスワードが入ります
+    public String password;
 
     public String email;
 
-    // ユーザー側から「自分の応募企業リスト」を参照できるようにする設定
-    @OneToMany(mappedBy = "user")
+    // cascade = CascadeType.ALL, orphanRemoval = true を追加
+    // これにより、ユーザーを削除すると、そのユーザーが書いたJobApplicationも全て自動削除されます
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<JobApplication> jobApplications;
 }
