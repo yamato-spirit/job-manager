@@ -8,6 +8,10 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/images/icon-192.png">
     <meta name="theme-color" content="#007bff">
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         .sortable-ghost { opacity: 0.4; background-color: #f0f0f0; }
@@ -135,18 +139,21 @@
         animation: 150,
         ghostClass: 'sortable-ghost',
         onEnd: function(evt) {
-            // 並び替えが終わった瞬間に実行される処理
             var order = sortable.toArray();
 
-            // サーバーへ新しい順番を送信して保存する
+            // metaタグからCSRFトークンとヘッダー名を取得
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
             fetch('/api/reorder', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    // ヘッダーにCSRFトークンを付与
+                    [csrfHeader]: csrfToken
                 },
                 body: JSON.stringify(order)
             }).then(response => {
-                // 通信が成功したかチェック
                 if (response.ok) {
                     console.log('順番を保存しました');
                 } else {
